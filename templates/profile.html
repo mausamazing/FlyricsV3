@@ -1,0 +1,82 @@
+<!-- templates/profile.html -->
+{% extends "base.html" %} {% block title %}Profile - LyricsFinder{% endblock %}
+{% block content %}
+<div class="row">
+  <div class="col-12">
+    <h2 class="mb-4">Your Spotify Profile</h2>
+
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-2">
+            {% if user_info.images %}
+            <img
+              src="{{ user_info.images[0].url }}"
+              class="img-fluid rounded-circle"
+              alt="Profile"
+            />
+            {% endif %}
+          </div>
+          <div class="col-md-10">
+            <h3>{{ user_info.display_name }}</h3>
+            <p><strong>Email:</strong> {{ user_info.email }}</p>
+            <p><strong>Country:</strong> {{ user_info.country }}</p>
+            <p><strong>Account Type:</strong> {{ user_info.product }}</p>
+            <p><strong>Followers:</strong> {{ user_info.followers.total }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h5>Your Playlists</h5>
+          </div>
+          <div class="card-body">
+            {% if playlists.items %}
+            <div class="list-group">
+              {% for playlist in playlists.items %}
+              <div class="list-group-item">
+                <h6>{{ playlist.name }}</h6>
+                <small class="text-muted"
+                  >{{ playlist.tracks.total }} tracks</small
+                >
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">No playlists found.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-6">
+        <div class="card">
+          <div class="card-header">
+            <h5>Liked Songs</h5>
+          </div>
+          <div class="card-body">
+            {% if saved_tracks.items %}
+            <div class="list-group">
+              {% for item in saved_tracks.items %}
+              <div class="list-group-item">
+                <h6>{{ item.track.name }}</h6>
+                <small class="text-muted"
+                  >{{ item.track.artists[0].name }}</small
+                >
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p class="text-muted">No liked songs found.</p>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,175 @@
+<!-- templates/currently_playing.html -->
+{% extends "base.html" %}
+
+{% block title %}Currently Playing - LyricsFinder{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-12">
+        <h2 class="mb-4">🎵 {{ context }}</h2>
+        
+        {% if error %}
+        <div class="alert alert-warning" role="alert">
+            {{ error }}
+        </div>
+        <a href="{{ url_for('index') }}" class="btn btn-primary">Back to Home</a>
+        {% elif track %}
+        
+        <!-- Track Info Card -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <img src="{{ track.album.images[0].url if track.album.images else '' }}" 
+                             class="img-fluid rounded" 
+                             alt="{{ track.album.name }}">
+                    </div>
+                    <div class="col-md-8">
+                        <h3 class="card-title">{{ track.name }}</h3>
+                        
+                        <p class="card-text">
+                            <strong>Artist:</strong> 
+                            {% for artist in track.artists %}
+                                {{ artist.name }}{% if not loop.last %}, {% endif %}
+                            {% endfor %}
+                        </p>
+                        
+                        <p class="card-text">
+                            <strong>Album:</strong> {{ track.album.name }}
+                        </p>
+                        
+                        <p class="card-text">
+                            <strong>Duration:</strong> 
+                            {{ (track.duration_ms / 60000)|round(1) }} minutes
+                        </p>
+                        
+                        <p class="card-text">
+                            <strong>Popularity:</strong> 
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar" role="progressbar" 
+                                     style="width: {{ track.popularity }}%;" 
+                                     aria-valuenow="{{ track.popularity }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <small>{{ track.popularity }}%</small>
+                        </p>
+                        
+                        {% if is_playing and progress_percent is defined %}
+                        <p class="card-text">
+                            <strong>Progress:</strong> 
+                            <div class="progress" style="height: 10px;">
+                                <div class="progress-bar bg-success" role="progressbar" 
+                                     style="width: {{ progress_percent }}%;" 
+                                     aria-valuenow="{{ progress_percent }}" 
+                                     aria-valuemin="0" 
+                                     aria-valuemax="100">
+                                </div>
+                            </div>
+                            <small>
+                                {{ (progress_ms / 1000)|round|int }}s / 
+                                {{ (track.duration_ms / 1000)|round|int }}s
+                                ({{ progress_percent|round(1) }}%)
+                            </small>
+                        </p>
+                        {% endif %}
+                        
+                        <div class="mt-4">
+                            <span class="badge {% if is_playing %}bg-success{% else %}bg-secondary{% endif %}">
+                                {% if is_playing %}▶️ Currently Playing{% else %}⏸️ Not Playing{% endif %}
+                            </span>
+                            
+                            {% if track.explicit %}
+                            <span class="badge bg-warning">EXPLICIT</span>
+                            {% endif %}
+                            
+                            <span class="badge bg-info">
+                                {{ track.album.album_type|title }}
+                            </span>
+                        </div>
+                        
+                        <div class="mt-4">
+                            <a href="https://open.spotify.com/track/{{ track.id }}" 
+                               target="_blank" 
+                               class="btn btn-success">
+                                🎵 Open in Spotify
+                            </a>
+                            
+                            {% if genius_url %}
+                            <a href="{{ genius_url }}" 
+                               target="_blank" 
+                               class="btn btn-outline-primary">
+                                📝 View on Genius
+                            </a>
+                            {% endif %}
+                            
+                            <a href="{{ url_for('currently_playing') }}" 
+                               class="btn btn-outline-secondary">
+                                🔄 Refresh
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Lyrics Card -->
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    📝 Lyrics 
+                    {% if genius_url %}
+                    <small class="text-muted">from <a href="{{ genius_url }}" target="_blank">Genius.com</a></small>
+                    {% endif %}
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if lyrics %}
+                <div class="lyrics-content">
+                    {{ lyrics }}
+                </div>
+                {% else %}
+                <div class="text-center py-4">
+                    <div class="text-muted mb-3">
+                        {% if genius_url %}
+                        <p>❌ Could not extract lyrics from Genius.com</p>
+                        <p><small>Try viewing the lyrics directly on <a href="{{ genius_url }}" target="_blank">Genius</a></small></p>
+                        {% else %}
+                        <p>🔍 No lyrics found for this track</p>
+                        <p><small>The song might not be available on Genius.com</small></p>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Auto-refresh every 30 seconds if track is playing
+{% if is_playing %}
+setTimeout(function() {
+    window.location.reload();
+}, 30000);
+{% endif %}
+</script>
+
+<style>
+.lyrics-content {
+    white-space: pre-line;
+    font-family: 'Courier New', monospace;
+    line-height: 1.6;
+    max-height: 600px;
+    overflow-y: auto;
+    padding: 10px;
+    background: #f8f9fa;
+    border-radius: 5px;
+}
+</style>
+{% endblock %}

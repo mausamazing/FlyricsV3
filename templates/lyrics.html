@@ -1,0 +1,85 @@
+<!-- templates/lyrics.html -->
+{% extends "base.html" %} {% block title %}Extract Lyrics - AZLyrics Scraper{%
+endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-12">
+    <h1 class="text-center mb-4">🎵 Extract Lyrics</h1>
+
+    <div class="card">
+      <div class="card-body">
+        <form id="lyricsForm" method="POST" action="/lyrics">
+          <div class="mb-3">
+            <label for="url" class="form-label">AZLyrics URL</label>
+            <input
+              type="url"
+              class="form-control"
+              id="url"
+              name="url"
+              placeholder="https://www.azlyrics.com/lyrics/artist/song.html"
+              value="{{ url if url else '' }}"
+              required
+            />
+            <div class="form-text">
+              Example: https://www.azlyrics.com/lyrics/edsheeran/perfect.html
+            </div>
+          </div>
+
+          <button type="submit" class="btn btn-primary" id="submitBtn">
+            Extract Lyrics
+          </button>
+          <a href="/" class="btn btn-secondary">Back to Home</a>
+          <a href="/test" class="btn btn-info" target="_blank">Test Scraper</a>
+        </form>
+      </div>
+    </div>
+
+    {% if error %}
+    <div class="alert alert-danger mt-3" role="alert">
+      <h5>Error</h5>
+      {{ error }} {% if url %}
+      <hr />
+      <small>Tried URL: <code>{{ url }}</code></small>
+      {% endif %}
+    </div>
+    {% endif %} {% if lyrics %}
+    <div class="lyrics-container mt-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5>🎵 Extracted Lyrics</h5>
+        <div>
+          <small class="text-muted me-3">{{ lyrics|length }} characters</small>
+          <small class="text-muted"
+            >Source: <a href="{{ url }}" target="_blank">{{ url }}</a></small
+          >
+        </div>
+      </div>
+      <hr />
+      <div class="lyrics-content">{{ lyrics }}</div>
+    </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %} {% block scripts %}
+<script>
+  document
+    .getElementById("lyricsForm")
+    .addEventListener("submit", function (e) {
+      const submitBtn = document.getElementById("submitBtn");
+      const url = document.getElementById("url").value;
+
+      if (!url.includes("azlyrics.com/lyrics/")) {
+        if (
+          !confirm(
+            "This doesn't look like a standard AZLyrics URL. Continue anyway?"
+          )
+        ) {
+          e.preventDefault();
+          return;
+        }
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.innerHTML =
+        '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Extracting...';
+    });
+</script>
+{% endblock %}

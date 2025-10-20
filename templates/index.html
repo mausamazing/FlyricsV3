@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Spotify Lyrics Finder</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #333;
+        line-height: 1.6;
+        min-height: 100vh;
+        padding: 20px;
+      }
+
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 30px;
+        color: white;
+      }
+
+      .header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+      }
+
+      .header p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+      }
+
+      .auth-section {
+        background: white;
+        padding: 40px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        margin-bottom: 30px;
+        max-width: 500px;
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .auth-section h2 {
+        color: #333;
+        margin-bottom: 15px;
+        font-size: 1.8rem;
+      }
+
+      .auth-section p {
+        color: #666;
+        margin-bottom: 25px;
+        font-size: 1.1rem;
+      }
+
+      .btn {
+        display: inline-block;
+        padding: 14px 35px;
+        background: #1db954;
+        color: white;
+        text-decoration: none;
+        border-radius: 30px;
+        font-weight: bold;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 5px;
+        font-size: 1rem;
+        box-shadow: 0 4px 15px rgba(29, 185, 84, 0.3);
+      }
+
+      .btn:hover {
+        background: #1ed760;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(29, 185, 84, 0.4);
+      }
+
+      .btn-secondary {
+        background: #667eea;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+      }
+
+      .btn-secondary:hover {
+        background: #764ba2;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+      }
+
+      .btn-danger {
+        background: #e74c3c;
+        box-shadow: 0 4px 15px rgba(231, 76, 60, 0.3);
+      }
+
+      .btn-danger:hover {
+        background: #c0392b;
+        box-shadow: 0 8px 25px rgba(231, 76, 60, 0.4);
+      }
+
+      .main-content {
+        display: none;
+      }
+
+      .song-info {
+        background: white;
+        padding: 30px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        margin-bottom: 25px;
+        text-align: center;
+      }
+
+      .album-art {
+        width: 220px;
+        height: 220px;
+        border-radius: 15px;
+        margin: 0 auto 25px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+        object-fit: cover;
+      }
+
+      .song-title {
+        font-size: 2rem;
+        margin-bottom: 8px;
+        color: #333;
+        font-weight: bold;
+      }
+
+      .song-artist {
+        font-size: 1.4rem;
+        color: #666;
+        margin-bottom: 15px;
+        font-weight: 500;
+      }
+
+      .lyrics-container {
+        background: white;
+        padding: 35px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        margin-bottom: 25px;
+        max-height: 600px;
+        overflow-y: auto;
+      }
+
+      .lyrics {
+        white-space: pre-line;
+        font-size: 1.2rem;
+        line-height: 1.8;
+        text-align: center;
+        color: #333;
+      }
+
+      .lyrics-loading {
+        color: #667eea;
+        text-align: center;
+        padding: 40px;
+        font-style: italic;
+        font-size: 1.3rem;
+      }
+
+      .lyrics-error {
+        color: #e74c3c;
+        text-align: center;
+        padding: 40px;
+        font-size: 1.3rem;
+      }
+
+      .lyrics-success {
+        color: #333;
+      }
+
+      .controls {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+      }
+
+      .status {
+        text-align: center;
+        padding: 20px;
+        background: rgba(255, 255, 255, 0.95);
+        border-radius: 15px;
+        margin-bottom: 25px;
+        font-weight: bold;
+        font-size: 1.1rem;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      .loading {
+        color: #667eea;
+        background: rgba(102, 126, 234, 0.1);
+      }
+
+      .success {
+        color: #1db954;
+        background: rgba(29, 185, 84, 0.1);
+      }
+
+      .error {
+        color: #e74c3c;
+        background: rgba(231, 76, 60, 0.1);
+      }
+
+      .search-section {
+        background: white;
+        padding: 25px;
+        border-radius: 20px;
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+        margin-bottom: 25px;
+      }
+
+      .search-section h3 {
+        color: #333;
+        margin-bottom: 20px;
+        font-size: 1.5rem;
+        text-align: center;
+      }
+
+      .search-input {
+        width: 100%;
+        padding: 15px 20px;
+        border: 2px solid #e1e5e9;
+        border-radius: 30px;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        outline: none;
+      }
+
+      .search-input:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      }
+
+      .search-results {
+        max-height: 400px;
+        overflow-y: auto;
+        border-radius: 15px;
+        background: #f8f9fa;
+      }
+
+      .search-result {
+        padding: 15px 20px;
+        border-bottom: 1px solid #e9ecef;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: all 0.2s ease;
+      }
+
+      .search-result:hover {
+        background: #e9ecef;
+        transform: translateX(5px);
+      }
+
+      .search-result:last-child {
+        border-bottom: none;
+      }
+
+      .search-result img {
+        width: 60px;
+        height: 60px;
+        border-radius: 8px;
+        object-fit: cover;
+      }
+
+      .search-result-content {
+        flex: 1;
+      }
+
+      .search-result-title {
+        font-weight: bold;
+        font-size: 1.1rem;
+        color: #333;
+        margin-bottom: 5px;
+      }
+
+      .search-result-artist {
+        color: #666;
+        font-size: 1rem;
+      }
+
+      .hidden {
+        display: none;
+      }
+
+      /* Scrollbar styling */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 10px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #a8a8a8;
+      }
+
+      /* Responsive design */
+      @media (max-width: 768px) {
+        .container {
+          padding: 10px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+        }
+
+        .controls {
+          flex-direction: column;
+          align-items: center;
+        }
+
+        .btn {
+          width: 200px;
+          margin: 5px 0;
+        }
+
+        .album-art {
+          width: 180px;
+          height: 180px;
+        }
+
+        .song-title {
+          font-size: 1.6rem;
+        }
+
+        .song-artist {
+          font-size: 1.2rem;
+        }
+
+        .lyrics {
+          font-size: 1.1rem;
+        }
+      }
+
+      @media (max-width: 480px) {
+        .auth-section {
+          padding: 30px 20px;
+        }
+
+        .song-info,
+        .lyrics-container,
+        .search-section {
+          padding: 20px 15px;
+        }
+
+        .album-art {
+          width: 150px;
+          height: 150px;
+        }
+      }
+
+      /* Animation for smooth transitions */
+      .fade-in {
+        animation: fadeIn 0.5s ease-in;
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* Pulse animation for loading */
+      .pulse {
+        animation: pulse 1.5s infinite;
+      }
+
+      @keyframes pulse {
+        0% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🎵 Spotify Lyrics Finder</h1>
+        <p>Get real-time lyrics for your currently playing Spotify songs</p>
+      </div>
+
+      <!-- Authentication Section -->
+      <div id="authSection" class="auth-section fade-in">
+        <h2>Connect to Spotify</h2>
+        <p>
+          This site can only be used by Mausam and his friends :) .
+          To get started, please connect your Spotify account to access your
+          currently playing music.
+        </p>
+        <a href="{{ url_for('login') }}" class="btn">Login with Spotify</a>
+      </div>
+
+      <!-- Main Content (shown after authentication) -->
+      <div id="mainContent" class="main-content">
+        <!-- Status Messages -->
+        <div id="status" class="status"></div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <button id="startMonitoring" class="btn">Start Monitoring</button>
+          <button id="stopMonitoring" class="btn btn-secondary">
+            Stop Monitoring
+          </button>
+          <button id="saveLyrics" class="btn">Save Lyrics</button>
+          <button id="logoutBtn" class="btn btn-danger">Logout</button>
+        </div>
+
+        <!-- Currently Playing Section -->
+        <div id="songInfo" class="song-info hidden fade-in">
+          <img id="albumArt" class="album-art" src="" alt="Album Art" />
+          <h2 id="songTitle" class="song-title"></h2>
+          <h3 id="songArtist" class="song-artist"></h3>
+        </div>
+
+        <!-- Lyrics Section -->
+        <div id="lyricsContainer" class="lyrics-container hidden fade-in">
+          <div id="lyrics" class="lyrics"></div>
+        </div>
+
+        <!-- Manual Search Section -->
+        <!-- <div class="search-section fade-in">
+          <h3>Search for Lyrics</h3>
+          <input
+            type="text"
+            id="searchInput"
+            class="search-input"
+            placeholder="Search for a song or artist..."
+          />
+          <div id="searchResults" class="search-results"></div> -->
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // Check authentication status on page load
+      checkAuthStatus();
+
+      // DOM Elements
+      const authSection = document.getElementById("authSection");
+      const mainContent = document.getElementById("mainContent");
+      const statusEl = document.getElementById("status");
+      const songInfo = document.getElementById("songInfo");
+      const lyricsContainer = document.getElementById("lyricsContainer");
+      const lyricsEl = document.getElementById("lyrics");
+      const albumArt = document.getElementById("albumArt");
+      const songTitle = document.getElementById("songTitle");
+      const songArtist = document.getElementById("songArtist");
+
+      // Buttons
+      const startMonitoringBtn = document.getElementById("startMonitoring");
+      const stopMonitoringBtn = document.getElementById("stopMonitoring");
+      const saveLyricsBtn = document.getElementById("saveLyrics");
+      const logoutBtn = document.getElementById("logoutBtn");
+      const searchInput = document.getElementById("searchInput");
+      const searchResults = document.getElementById("searchResults");
+
+      // Variables
+      let monitoringInterval;
+      let currentSongId = null;
+
+      // Event Listeners
+      startMonitoringBtn.addEventListener("click", startMonitoring);
+      stopMonitoringBtn.addEventListener("click", stopMonitoring);
+      saveLyricsBtn.addEventListener("click", saveLyrics);
+      logoutBtn.addEventListener("click", logout);
+      searchInput.addEventListener("input", debounce(searchSongs, 500));
+
+      // Functions
+      async function checkAuthStatus() {
+        try {
+          const response = await fetch("/api/auth_status");
+          const data = await response.json();
+
+          if (data.authenticated) {
+            authSection.style.display = "none";
+            mainContent.style.display = "block";
+            updateStatus("✅ Connected to Spotify", "success");
+            checkMonitoringStatus();
+          } else {
+            authSection.style.display = "block";
+            mainContent.style.display = "none";
+          }
+        } catch (error) {
+          console.error("Error checking auth status:", error);
+        }
+      }
+
+      async function checkMonitoringStatus() {
+        try {
+          const response = await fetch("/api/monitoring/status");
+          const data = await response.json();
+
+          if (data.monitoring) {
+            updateStatus(
+              "🔍 Monitoring active - Waiting for song changes...",
+              "success"
+            );
+            startPolling();
+          }
+        } catch (error) {
+          console.error("Error checking monitoring status:", error);
+        }
+      }
+
+      async function startMonitoring() {
+        try {
+          const response = await fetch("/api/monitoring/start");
+          const data = await response.json();
+
+          if (data.status === "started" || data.status === "already_running") {
+            updateStatus(
+              "🔍 Monitoring started - Waiting for song changes...",
+              "success"
+            );
+            startPolling();
+          } else {
+            updateStatus("❌ " + data.message, "error");
+          }
+        } catch (error) {
+          console.error("Error starting monitoring:", error);
+          updateStatus("❌ Error starting monitoring", "error");
+        }
+      }
+
+      async function stopMonitoring() {
+        try {
+          const response = await fetch("/api/monitoring/stop");
+          const data = await response.json();
+
+          if (data.status === "stopped") {
+            updateStatus("⏸️ Monitoring stopped", "success");
+            stopPolling();
+          }
+        } catch (error) {
+          console.error("Error stopping monitoring:", error);
+        }
+      }
+
+      function startPolling() {
+        // Clear existing interval
+        if (monitoringInterval) {
+          clearInterval(monitoringInterval);
+        }
+
+        // Get initial data
+        fetchCurrentSong();
+
+        // Set up polling
+        monitoringInterval = setInterval(fetchCurrentSong, 3000);
+      }
+
+      function stopPolling() {
+        if (monitoringInterval) {
+          clearInterval(monitoringInterval);
+          monitoringInterval = null;
+        }
+      }
+
+      async function fetchCurrentSong() {
+        try {
+          const response = await fetch("/api/current_song");
+          const data = await response.json();
+
+          if (data.error && data.error === "Not authenticated") {
+            updateStatus("❌ Not authenticated", "error");
+            logout();
+            return;
+          }
+
+          if (data.name && data.artist) {
+            // Check if song changed
+            const songChanged = data.name !== currentSongId;
+
+            if (songChanged) {
+              currentSongId = data.name;
+
+              // Update UI with animation
+              songInfo.classList.remove("hidden");
+              lyricsContainer.classList.remove("hidden");
+
+              if (data.album_art) {
+                albumArt.src = data.album_art;
+                albumArt.style.display = "block";
+              } else {
+                albumArt.style.display = "none";
+              }
+
+              songTitle.textContent = data.name;
+              songArtist.textContent = data.artist;
+
+              // Reset lyrics to loading state
+              lyricsEl.textContent = "🔄 Fetching lyrics...";
+              lyricsEl.className = "lyrics lyrics-loading pulse";
+              updateStatus("🔄 Fetching lyrics...", "loading");
+            }
+
+            // Update lyrics if available and not in loading state
+            if (data.lyrics && data.lyrics !== "🔄 Fetching lyrics...") {
+              if (data.lyrics.includes("❌") || data.lyrics.includes("Error")) {
+                lyricsEl.textContent = data.lyrics;
+                lyricsEl.className = "lyrics lyrics-error";
+                updateStatus("❌ Could not fetch lyrics", "error");
+              } else if (data.success === false) {
+                lyricsEl.textContent = "❌ Lyrics not available for this song.";
+                lyricsEl.className = "lyrics lyrics-error";
+                updateStatus("❌ Lyrics not found", "error");
+              } else {
+                lyricsEl.textContent = data.lyrics;
+                lyricsEl.className = "lyrics lyrics-success";
+                updateStatus("✅ Lyrics loaded successfully!", "success");
+              }
+            }
+          } else {
+            songInfo.classList.add("hidden");
+            lyricsContainer.classList.add("hidden");
+            updateStatus("❌ No song currently playing", "error");
+            currentSongId = null;
+          }
+        } catch (error) {
+          console.error("Error fetching current song:", error);
+          updateStatus("❌ Error fetching current song", "error");
+        }
+      }
+
+      async function saveLyrics() {
+        try {
+          const response = await fetch("/api/save_lyrics");
+          const data = await response.json();
+
+          if (data.status === "success") {
+            updateStatus("💾 Lyrics saved as: " + data.filename, "success");
+          } else {
+            updateStatus("❌ " + data.message, "error");
+          }
+        } catch (error) {
+          console.error("Error saving lyrics:", error);
+          updateStatus("❌ Error saving lyrics", "error");
+        }
+      }
+
+      async function searchSongs() {
+        const query = searchInput.value.trim();
+
+        if (query.length < 2) {
+          searchResults.innerHTML = "";
+          return;
+        }
+
+        try {
+          const response = await fetch(
+            "/api/search?q=" + encodeURIComponent(query)
+          );
+          const data = await response.json();
+
+          if (data.tracks) {
+            displaySearchResults(data.tracks);
+          }
+        } catch (error) {
+          console.error("Error searching songs:", error);
+        }
+      }
+
+      function displaySearchResults(tracks) {
+        searchResults.innerHTML = "";
+
+        if (tracks.length === 0) {
+          searchResults.innerHTML =
+            '<div class="search-result"><div class="search-result-content"><div class="search-result-title">No results found</div></div></div>';
+          return;
+        }
+
+        tracks.forEach((track) => {
+          const result = document.createElement("div");
+          result.className = "search-result";
+          result.innerHTML = `
+                    ${
+                      track.album_art
+                        ? `<img src="${track.album_art}" alt="Album Art">`
+                        : '<div style="width: 60px; height: 60px; background: #ddd; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666;">🎵</div>'
+                    }
+                    <div class="search-result-content">
+                        <div class="search-result-title">${track.name}</div>
+                        <div class="search-result-artist">${track.artist} • ${
+            track.album
+          }</div>
+                    </div>
+                `;
+
+          result.addEventListener("click", () => {
+            fetchLyricsForSong(track.name, track.artist);
+            searchInput.value = "";
+            searchResults.innerHTML = "";
+          });
+
+          searchResults.appendChild(result);
+        });
+      }
+
+      async function fetchLyricsForSong(songName, artistName) {
+        try {
+          updateStatus("🔄 Fetching lyrics...", "loading");
+
+          const response = await fetch(
+            `/api/lyrics/${encodeURIComponent(songName)}/${encodeURIComponent(
+              artistName
+            )}`
+          );
+          const data = await response.json();
+
+          // Update UI with manual search results
+          songInfo.classList.remove("hidden");
+          lyricsContainer.classList.remove("hidden");
+
+          albumArt.style.display = "none";
+          songTitle.textContent = songName;
+          songArtist.textContent = artistName;
+
+          if (data.success) {
+            lyricsEl.textContent = data.lyrics;
+            lyricsEl.className = "lyrics lyrics-success";
+            updateStatus("✅ Lyrics loaded successfully!", "success");
+          } else {
+            lyricsEl.textContent =
+              data.lyrics || "❌ Could not find lyrics for this song.";
+            lyricsEl.className = "lyrics lyrics-error";
+            updateStatus("❌ Could not find lyrics for this song", "error");
+          }
+        } catch (error) {
+          console.error("Error fetching lyrics:", error);
+          lyricsEl.textContent = "❌ Error fetching lyrics. Please try again.";
+          lyricsEl.className = "lyrics lyrics-error";
+          updateStatus("❌ Error fetching lyrics", "error");
+        }
+      }
+
+      function logout() {
+        window.location.href = "{{ url_for('logout') }}";
+      }
+
+      function updateStatus(message, type) {
+        statusEl.textContent = message;
+        statusEl.className = "status " + type;
+      }
+
+      // Utility function for debouncing
+      function debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      }
+    </script>
+  </body>
+</html>
