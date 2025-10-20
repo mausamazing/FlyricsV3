@@ -1,8 +1,0 @@
-{
-  "31lyidatssovcspdwqpm2bbfpadu": {
-    "access_token": "BQCwBTXgc0aYeu5I9-FAWs7e4ZL27cJSZR7tLblECFOBhyVRi9iyY-oSf--8IG1F7mypgvqyerKi3J5WrcYvIsu6_Iq8Ue2PJ3qJ16eA_Nkz_pzbuHnJNUjKEcj_pYW6bRY04BlU4dzqgCGlcmILvquifHewI9uPFHwr9a6FijFhFUmE3AYg6LRiguGnTAeLHKrFkhUvgq7die2158ce77O7W0_Q7qrbZp2GBpLIpSZzrGbPo2wN2A3XFwgxeLzgVmaq4BLcH8ytt3SAzFFXlPAoooCs",
-    "refresh_token": "AQDTQD3hWMuaUtORHOS5CRNlgnE4woxbDYxSFbf4PPdrL2MJ_A9pgirmIkLJ-7PPjgrkCqbX1DCACTDbLrk6GD2z74ZCrKcN7eFOHWTWh8VMxX2sD2DqaGLt4uaygQA-iJo",
-    "expires_at": 1760949176,
-    "scope": "user-read-private user-read-email user-library-read playlist-read-private user-read-currently-playing user-read-playback-state"
-  }
-}
